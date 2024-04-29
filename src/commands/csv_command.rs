@@ -36,33 +36,22 @@ use std::fs;
 
 use anyhow::Result;
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
-struct Player {
-    #[serde(rename = "Name")]
-    name: String,
-
-    #[serde(rename = "Position")]
-    position: String,
-
-    #[serde(rename = "DOB")]
-    dob: String,
-
-    #[serde(rename = "Nationality")]
-    nationality: String,
-
-    #[serde(rename = "Kit Number")]
-    kit_number: u8,
-}
-
 pub fn action(input: &str, output: &str) -> Result<()> {
     let mut reader = csv::Reader::from_path(input)?;
 
-    let mut result = Vec::with_capacity(128);
+    let mut result: Vec<_> = Vec::with_capacity(1024);
 
-    for record in reader.deserialize() {
-        let player: Player = record?;
+    let headers = reader.headers()?.clone();
 
-        result.push(player);
+    for r in reader.records() {
+        let record = r?;
+
+        let rec = headers
+            .iter()
+            .zip(record.iter())
+            .collect::<serde_json::Value>();
+
+        result.push(rec);
     }
 
     let result_json = serde_json::to_string_pretty(&result)?;
