@@ -9,7 +9,7 @@ fn main() -> Result<()> {
     let program = Program::parse();
 
     match program.commands {
-        Commands::Csv(options) => csv_command::action(&options.input, &options.output)?,
+        Commands::Csv(options) => csv_command::action(&options.input, &options.output, &options)?,
     }
 
     return Ok(());
